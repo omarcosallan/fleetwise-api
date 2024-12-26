@@ -8,7 +8,9 @@ import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
 import com.omarcosallan.fleetwise.dto.organization.CreateOrganizationRequestDTO;
 import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
 import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
+import com.omarcosallan.fleetwise.dto.organization.UpdateOrganizationDTO;
 import com.omarcosallan.fleetwise.exceptions.OrganizationDomainAlreadyExistsException;
+import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.mappers.MembershipMapper;
 import com.omarcosallan.fleetwise.mappers.OrganizationMapper;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
@@ -80,5 +82,32 @@ public class OrganizationService {
 
         List<OrganizationMinDTO> orgs = organizationRepository.findOrganizationsByUserId(user.getId());
         return new ResponseWrapper<List<OrganizationMinDTO>>("organizations", orgs);
+    }
+
+    @Transactional
+    public void updateOrganization(String slug, UpdateOrganizationDTO body) {
+        Member member = memberService.getMember(slug);
+
+        boolean canUpdateOrganization = member.getRole().equals(Role.ADMIN);
+        if (!canUpdateOrganization) {
+            throw new UnauthorizedException("You're not allowed to update this organization.");
+        }
+
+        Organization organization = member.getOrganization();
+
+        if (body.domain() != null) {
+            Optional<Organization> organizationByDomain = organizationRepository.findFirstByDomainAndIdNot(body.domain(), organization.getId());
+
+            if (organizationByDomain.isPresent()) {
+                throw new OrganizationDomainAlreadyExistsException();
+            }
+        }
+
+        organization.setName(body.name());
+        organization.setDomain(body.domain());
+        organization.setSlug(SlugUtils.createSlug(body.name()));
+        organization.setShouldAttachUsersByDomain(body.shouldAttachUsersByDomain());
+
+        organizationRepository.save(organization);
     }
 }

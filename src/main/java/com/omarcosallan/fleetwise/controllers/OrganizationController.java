@@ -4,6 +4,7 @@ import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
 import com.omarcosallan.fleetwise.dto.organization.CreateOrganizationRequestDTO;
 import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
 import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
+import com.omarcosallan.fleetwise.dto.organization.UpdateOrganizationDTO;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,5 +43,11 @@ public class OrganizationController {
     public ResponseEntity<ResponseWrapper<List<OrganizationMinDTO>>> getOrganizations() {
         ResponseWrapper<List<OrganizationMinDTO>> result = organizationService.getOrganizations();
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping(value = "/{slug}")
+    public ResponseEntity<Void> updateOrganization(@PathVariable("slug") String slug, @RequestBody UpdateOrganizationDTO body) {
+        organizationService.updateOrganization(slug, body);
+        return ResponseEntity.noContent().build();
     }
 }
