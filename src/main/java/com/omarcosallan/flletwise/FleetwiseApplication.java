@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FlletwiseApplication {
+public class FleetwiseApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FlletwiseApplication.class, args);
+		SpringApplication.run(FleetwiseApplication.class, args);
 	}
 
 }
