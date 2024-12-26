@@ -2,6 +2,7 @@ package com.omarcosallan.flletwise.controllers;
 
 import com.omarcosallan.flletwise.dto.member.MembershipDTO;
 import com.omarcosallan.flletwise.dto.organization.CreateOrganizationRequestDTO;
+import com.omarcosallan.flletwise.dto.organization.OrganizationDTO;
 import com.omarcosallan.flletwise.mappers.ResponseWrapper;
 import com.omarcosallan.flletwise.services.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,12 @@ public class OrganizationController {
     @GetMapping(value = "/{slug}/membership")
     public ResponseEntity<ResponseWrapper<MembershipDTO>> getMembership(@PathVariable("slug") String slug) {
         ResponseWrapper<MembershipDTO> result = organizationService.getMembership(slug);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/{slug}")
+    public ResponseEntity<ResponseWrapper<OrganizationDTO>> getOrganization(@PathVariable("slug") String slug) {
+        ResponseWrapper<OrganizationDTO> result = organizationService.getOrganization(slug);
         return ResponseEntity.ok(result);
     }
 }
