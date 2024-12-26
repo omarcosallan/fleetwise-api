@@ -2,7 +2,8 @@ package com.omarcosallan.flletwise.controllers;
 
 import com.omarcosallan.flletwise.dto.user.LoginRequestDTO;
 import com.omarcosallan.flletwise.dto.user.LoginResponseDTO;
-import com.omarcosallan.flletwise.dto.user.UserResponseDTO;
+import com.omarcosallan.flletwise.dto.user.UserMinDTO;
+import com.omarcosallan.flletwise.mappers.ResponseWrapper;
 import com.omarcosallan.flletwise.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,8 +23,8 @@ public class AuthController {
     }
 
     @GetMapping(value = "/profile")
-    public ResponseEntity<UserResponseDTO> getProfile() {
-        UserResponseDTO result = authService.getProfile();
+    public ResponseEntity<ResponseWrapper<UserMinDTO>> getProfile() {
+        ResponseWrapper<UserMinDTO> result = authService.getProfile();
         return ResponseEntity.ok(result);
     }
 }

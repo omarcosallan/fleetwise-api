@@ -2,7 +2,10 @@ package com.omarcosallan.flletwise.services;
 
 import com.omarcosallan.flletwise.domain.user.User;
 import com.omarcosallan.flletwise.dto.user.CreateUserDTO;
+import com.omarcosallan.flletwise.dto.user.UserMinDTO;
 import com.omarcosallan.flletwise.exceptions.UserAlreadyExistsException;
+import com.omarcosallan.flletwise.mappers.ResponseWrapper;
+import com.omarcosallan.flletwise.mappers.UserMinMapper;
 import com.omarcosallan.flletwise.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,8 +24,8 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public User create(CreateUserDTO body) {
-        Optional<User> userAlreadyExists =  userRepository.findByEmail(body.email());
+    public ResponseWrapper<UserMinDTO> create(CreateUserDTO body) {
+        Optional<User> userAlreadyExists = userRepository.findByEmail(body.email());
 
         if (userAlreadyExists.isPresent()) {
             throw new UserAlreadyExistsException();
@@ -35,8 +38,8 @@ public class UserService {
         user.setEmail(body.email());
         user.setPasswordHash(passwordHash);
 
-
-        return userRepository.save(user);
+        UserMinDTO userMinDTO = UserMinMapper.INSTANCE.toUserMinDTO(user);
+        return new ResponseWrapper<>("user", userMinDTO);
     }
 
     public User authenticated() {
