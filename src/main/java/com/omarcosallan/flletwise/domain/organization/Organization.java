@@ -58,4 +58,9 @@ public class Organization {
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Member> members = new ArrayList<>();
+
+    public void addMember(Member member) {
+        members.add(member);
+        member.setOrganization(this);
+    }
 }
