@@ -1,4 +1,4 @@
-package com.omarcosallan.flletwise.dto;
+package com.omarcosallan.flletwise.dto.user;
 
 public record LoginRequestDTO(String email,
                               String password) {

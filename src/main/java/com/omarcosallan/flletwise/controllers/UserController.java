@@ -1,7 +1,7 @@
 package com.omarcosallan.flletwise.controllers;
 
 import com.omarcosallan.flletwise.domain.user.User;
-import com.omarcosallan.flletwise.dto.CreateUserDTO;
+import com.omarcosallan.flletwise.dto.user.CreateUserDTO;
 import com.omarcosallan.flletwise.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

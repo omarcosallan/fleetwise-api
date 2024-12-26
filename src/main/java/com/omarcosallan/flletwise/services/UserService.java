@@ -1,10 +1,11 @@
 package com.omarcosallan.flletwise.services;
 
 import com.omarcosallan.flletwise.domain.user.User;
-import com.omarcosallan.flletwise.dto.CreateUserDTO;
+import com.omarcosallan.flletwise.dto.user.CreateUserDTO;
 import com.omarcosallan.flletwise.exceptions.UserAlreadyExistsException;
 import com.omarcosallan.flletwise.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,5 +37,9 @@ public class UserService {
 
 
         return userRepository.save(user);
+    }
+
+    public User authenticated() {
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
