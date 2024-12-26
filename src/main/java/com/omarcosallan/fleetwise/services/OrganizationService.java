@@ -1,22 +1,24 @@
-package com.omarcosallan.flletwise.services;
+package com.omarcosallan.fleetwise.services;
 
-import com.omarcosallan.flletwise.domain.enums.Role;
-import com.omarcosallan.flletwise.domain.member.Member;
-import com.omarcosallan.flletwise.domain.organization.Organization;
-import com.omarcosallan.flletwise.domain.user.User;
-import com.omarcosallan.flletwise.dto.member.MembershipDTO;
-import com.omarcosallan.flletwise.dto.organization.CreateOrganizationRequestDTO;
-import com.omarcosallan.flletwise.dto.organization.OrganizationDTO;
-import com.omarcosallan.flletwise.exceptions.OrganizationDomainAlreadyExistsException;
-import com.omarcosallan.flletwise.mappers.MembershipMapper;
-import com.omarcosallan.flletwise.mappers.OrganizationMapper;
-import com.omarcosallan.flletwise.mappers.ResponseWrapper;
-import com.omarcosallan.flletwise.repositories.OrganizationRepository;
-import com.omarcosallan.flletwise.utils.SlugUtils;
+import com.omarcosallan.fleetwise.domain.enums.Role;
+import com.omarcosallan.fleetwise.domain.member.Member;
+import com.omarcosallan.fleetwise.domain.organization.Organization;
+import com.omarcosallan.fleetwise.domain.user.User;
+import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
+import com.omarcosallan.fleetwise.dto.organization.CreateOrganizationRequestDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
+import com.omarcosallan.fleetwise.exceptions.OrganizationDomainAlreadyExistsException;
+import com.omarcosallan.fleetwise.mappers.MembershipMapper;
+import com.omarcosallan.fleetwise.mappers.OrganizationMapper;
+import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
+import com.omarcosallan.fleetwise.repositories.OrganizationRepository;
+import com.omarcosallan.fleetwise.utils.SlugUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,5 +73,12 @@ public class OrganizationService {
         Member member = memberService.getMember(slug);
         OrganizationDTO org = OrganizationMapper.INSTANCE.toOrganizationDTO(member.getOrganization());
         return new ResponseWrapper<>("organization", org);
+    }
+
+    public ResponseWrapper<List<OrganizationMinDTO>> getOrganizations() {
+        User user = userService.authenticated();
+
+        List<OrganizationMinDTO> orgs = organizationRepository.findOrganizationsByUserId(user.getId());
+        return new ResponseWrapper<List<OrganizationMinDTO>>("organizations", orgs);
     }
 }

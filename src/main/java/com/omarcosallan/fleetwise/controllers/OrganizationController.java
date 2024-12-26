@@ -1,15 +1,17 @@
-package com.omarcosallan.flletwise.controllers;
+package com.omarcosallan.fleetwise.controllers;
 
-import com.omarcosallan.flletwise.dto.member.MembershipDTO;
-import com.omarcosallan.flletwise.dto.organization.CreateOrganizationRequestDTO;
-import com.omarcosallan.flletwise.dto.organization.OrganizationDTO;
-import com.omarcosallan.flletwise.mappers.ResponseWrapper;
-import com.omarcosallan.flletwise.services.OrganizationService;
+import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
+import com.omarcosallan.fleetwise.dto.organization.CreateOrganizationRequestDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
+import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
+import com.omarcosallan.fleetwise.services.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -33,6 +35,12 @@ public class OrganizationController {
     @GetMapping(value = "/{slug}")
     public ResponseEntity<ResponseWrapper<OrganizationDTO>> getOrganization(@PathVariable("slug") String slug) {
         ResponseWrapper<OrganizationDTO> result = organizationService.getOrganization(slug);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping
+    public ResponseEntity<ResponseWrapper<List<OrganizationMinDTO>>> getOrganizations() {
+        ResponseWrapper<List<OrganizationMinDTO>> result = organizationService.getOrganizations();
         return ResponseEntity.ok(result);
     }
 }
