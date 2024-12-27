@@ -27,7 +27,7 @@ import java.util.UUID;
 @Service
 public class OrganizationService {
     @Autowired
-    private UserService userService;
+    private AuthService authService;
 
     @Autowired
     private OrganizationRepository organizationRepository;
@@ -37,7 +37,7 @@ public class OrganizationService {
 
     @Transactional
     public ResponseWrapper<UUID> createOrganization(CreateOrganizationRequestDTO body) {
-        User currentUser = userService.authenticated();
+        User currentUser = authService.authenticated();
 
         if (body.domain() != null) {
             Optional<Organization> organizationByDomain = organizationRepository.findByDomain(body.domain());
@@ -78,10 +78,9 @@ public class OrganizationService {
     }
 
     public ResponseWrapper<List<OrganizationMinDTO>> getOrganizations() {
-        User user = userService.authenticated();
-
+        User user = authService.authenticated();
         List<OrganizationMinDTO> orgs = organizationRepository.findOrganizationsByUserId(user.getId());
-        return new ResponseWrapper<List<OrganizationMinDTO>>("organizations", orgs);
+        return new ResponseWrapper<>("organizations", orgs);
     }
 
     @Transactional
@@ -109,5 +108,10 @@ public class OrganizationService {
         organization.setShouldAttachUsersByDomain(body.shouldAttachUsersByDomain());
 
         organizationRepository.save(organization);
+    }
+
+    public Organization findFirstByDomainAndShouldAttachUsersByDomain(String domain) {
+        return organizationRepository.findFirstByDomainAndShouldAttachUsersByDomainTrue(domain)
+                .orElse(null);
     }
 }

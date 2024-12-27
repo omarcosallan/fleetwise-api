@@ -12,10 +12,10 @@ public class MemberService {
     private MemberRepository memberRepository;
 
     @Autowired
-    private UserService userService;
+    private AuthService authService;
 
     public Member getMember(String slug) {
-        return memberRepository.findByUserIdAndOrganizationSlug(userService.authenticated().getId(), slug)
+        return memberRepository.findByUserIdAndOrganizationSlug(authService.authenticated().getId(), slug)
                 .orElseThrow(() -> new UnauthorizedException("You're not a member of this organization."));
     }
 }
