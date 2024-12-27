@@ -50,4 +50,10 @@ public class OrganizationController {
         organizationService.updateOrganization(slug, body);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping(value = "/{slug}")
+    public ResponseEntity<Void> shutdownOrganization(@PathVariable("slug") String slug) {
+        organizationService.shutdownOrganization(slug);
+        return ResponseEntity.noContent().build();
+    }
 }

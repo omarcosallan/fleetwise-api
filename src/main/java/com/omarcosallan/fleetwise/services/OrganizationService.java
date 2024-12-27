@@ -114,4 +114,16 @@ public class OrganizationService {
         return organizationRepository.findFirstByDomainAndShouldAttachUsersByDomainTrue(domain)
                 .orElse(null);
     }
+
+    @Transactional
+    public void shutdownOrganization(String slug) {
+        Member member = memberService.getMember(slug);
+
+        boolean canDeleteOrganization = member.getRole().equals(Role.ADMIN);
+        if (!canDeleteOrganization) {
+            throw new UnauthorizedException("You're not allowed to shutdown this organization.");
+        }
+
+        organizationRepository.deleteById(member.getOrganization().getId());
+    }
 }
