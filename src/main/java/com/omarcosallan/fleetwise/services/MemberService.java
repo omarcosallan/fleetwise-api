@@ -6,6 +6,9 @@ import com.omarcosallan.fleetwise.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Service
 public class MemberService {
     @Autowired
@@ -17,5 +20,9 @@ public class MemberService {
     public Member getMember(String slug) {
         return memberRepository.findByUserIdAndOrganizationSlug(authService.authenticated().getId(), slug)
                 .orElseThrow(() -> new UnauthorizedException("You're not a member of this organization."));
+    }
+
+    public Optional<Member> findByUserIdAndOrganizationId(UUID transferToUserId, UUID organizationId) {
+        return memberRepository.findByUserIdAndOrganizationId(transferToUserId, organizationId);
     }
 }

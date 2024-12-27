@@ -1,10 +1,7 @@
 package com.omarcosallan.fleetwise.controllers;
 
 import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
-import com.omarcosallan.fleetwise.dto.organization.CreateOrganizationRequestDTO;
-import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
-import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
-import com.omarcosallan.fleetwise.dto.organization.UpdateOrganizationDTO;
+import com.omarcosallan.fleetwise.dto.organization.*;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +51,12 @@ public class OrganizationController {
     @DeleteMapping(value = "/{slug}")
     public ResponseEntity<Void> shutdownOrganization(@PathVariable("slug") String slug) {
         organizationService.shutdownOrganization(slug);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping(value = "/{slug}/owner")
+    public ResponseEntity<Void> transferOrganization(@PathVariable("slug") String slug, @RequestBody TransferOrganizationRequestDTO body) {
+        organizationService.transferOrganization(slug, body);
         return ResponseEntity.noContent().build();
     }
 }

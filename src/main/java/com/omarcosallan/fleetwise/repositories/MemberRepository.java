@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface MemberRepository extends JpaRepository<Member, UUID> {
     Optional<Member> findByUserIdAndOrganizationSlug(UUID userId, String slug);
+
+    Optional<Member> findByUserIdAndOrganizationId(UUID transferToUserId, UUID organizationId);
 }

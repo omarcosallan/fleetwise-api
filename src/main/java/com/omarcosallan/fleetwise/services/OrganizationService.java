@@ -5,10 +5,8 @@ import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
-import com.omarcosallan.fleetwise.dto.organization.CreateOrganizationRequestDTO;
-import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
-import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
-import com.omarcosallan.fleetwise.dto.organization.UpdateOrganizationDTO;
+import com.omarcosallan.fleetwise.dto.organization.*;
+import com.omarcosallan.fleetwise.exceptions.BadRequestException;
 import com.omarcosallan.fleetwise.exceptions.OrganizationDomainAlreadyExistsException;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.mappers.MembershipMapper;
@@ -125,5 +123,26 @@ public class OrganizationService {
         }
 
         organizationRepository.deleteById(member.getOrganization().getId());
+    }
+
+    @Transactional
+    public void transferOrganization(String slug, TransferOrganizationRequestDTO body) {
+        Member member = memberService.getMember(slug);
+        Organization organization = member.getOrganization();
+
+        boolean canTransferOwnership = member.getRole() == Role.ADMIN
+                && organization.getOwner().equals(member.getUser());
+        if (!canTransferOwnership) {
+            throw new UnauthorizedException("You're not allowed to transfer this organization ownership.");
+        }
+
+        Member transferMembership = memberService
+                .findByUserIdAndOrganizationId(body.transferToUserId(), organization.getId())
+                .orElseThrow(() -> new BadRequestException("You're not a member of this organization."));
+
+        transferMembership.setRole(Role.ADMIN);
+        organization.setOwner(transferMembership.getUser());
+
+        organizationRepository.save(organization);
     }
 }
