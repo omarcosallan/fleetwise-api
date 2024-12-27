@@ -17,6 +17,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, UUID
 
     Optional<Organization> findFirstByDomainAndShouldAttachUsersByDomainTrue(String domain);
 
-    @Query("SELECT new com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO(o.id, o.name, o.slug, o.avatarUrl, m.role) FROM Organization o JOIN o.members m WHERE m.user.id = :userId")
+    @Query("SELECT new com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO(o.id, o.name, o.slug, o.avatarUrl, o.createdAt, m.role, o.owner) FROM Organization o JOIN o.members m WHERE m.user.id = :userId")
     List<OrganizationMinDTO> findOrganizationsByUserId(@Param("userId") UUID userId);
 }
