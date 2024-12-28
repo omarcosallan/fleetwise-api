@@ -3,6 +3,8 @@ package com.omarcosallan.fleetwise.services;
 import com.omarcosallan.fleetwise.domain.enums.Role;
 import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.dto.member.MemberDTO;
+import com.omarcosallan.fleetwise.dto.member.UpdateMemberRequestDTO;
+import com.omarcosallan.fleetwise.exceptions.MemberNotFoundException;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.mappers.MemberMapper;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
@@ -58,5 +60,21 @@ public class MemberService {
         }
 
         memberRepository.deleteByIdAndOrganizationId(memberId, member.getOrganization().getId());
+    }
+
+    @Transactional
+    public void updateMember(String slug, UUID memberId, UpdateMemberRequestDTO body) {
+        Member member = getMember(slug);
+
+        boolean canUpdateUser = member.getRole() == Role.ADMIN;
+        if (!canUpdateUser) {
+            throw new UnauthorizedException("You're not allowed to update this member.");
+        }
+
+        Member updatingMember = memberRepository.findByIdAndOrganizationId(memberId, member.getOrganization().getId())
+                .orElseThrow(MemberNotFoundException::new);
+
+        updatingMember.setRole(body.role());
+        memberRepository.save(updatingMember);
     }
 }

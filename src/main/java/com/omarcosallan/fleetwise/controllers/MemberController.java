@@ -1,6 +1,7 @@
 package com.omarcosallan.fleetwise.controllers;
 
 import com.omarcosallan.fleetwise.dto.member.MemberDTO;
+import com.omarcosallan.fleetwise.dto.member.UpdateMemberRequestDTO;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,12 @@ public class MemberController {
     @DeleteMapping(value = "/{memberId}")
     public ResponseEntity<Void> removeMember(@PathVariable("slug") String slug, @PathVariable("memberId") UUID memberId) {
         memberService.removeMember(slug, memberId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{memberId}")
+    public ResponseEntity<Void> updateMember(@PathVariable("slug") String slug, @PathVariable("memberId") UUID memberId, @RequestBody UpdateMemberRequestDTO body) {
+        memberService.updateMember(slug, memberId,body);
         return ResponseEntity.noContent().build();
     }
 }
