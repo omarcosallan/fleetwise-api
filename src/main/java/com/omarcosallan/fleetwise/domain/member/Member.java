@@ -23,7 +23,7 @@ public class Member {
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    private Role role = Role.BASIC;
+    private Role role = Role.MEMBER;
 
     @ManyToOne
     @JoinColumn(name = "organization_id", nullable = false)
