@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -95,7 +94,7 @@ public class InviteService {
     public ResponseWrapper<InviteDTO> getInvite(UUID inviteId) {
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(InviteNotFoundException::new);
-        return new ResponseWrapper<>("invite", InviteMapper.INSTANCE.toMemberDTO(invite));
+        return new ResponseWrapper<>("invite", InviteMapper.INSTANCE.toInviteDTO(invite));
     }
 
     @Transactional
@@ -141,5 +140,13 @@ public class InviteService {
                 .orElseThrow(InviteNotFoundException::new);
 
         inviteRepository.deleteById(inviteId);
+    }
+
+    public ResponseWrapper<List<InviteDTO>> getPendingInvites() {
+        User user = authService.authenticated();
+
+        List<Invite> invites = inviteRepository.findByEmail(user.getEmail());
+
+        return new ResponseWrapper<>("invites", invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList()));
     }
 }

@@ -9,5 +9,5 @@ import org.mapstruct.factory.Mappers;
 public interface InviteMapper {
     InviteMapper INSTANCE = Mappers.getMapper(InviteMapper.class);
 
-    InviteDTO toMemberDTO(Invite invite);
+    InviteDTO toInviteDTO(Invite invite);
 }
