@@ -3,6 +3,7 @@ package com.omarcosallan.fleetwise.domain.organization;
 import com.omarcosallan.fleetwise.domain.invite.Invite;
 import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.domain.user.User;
+import com.omarcosallan.fleetwise.domain.vehicle.Vehicle;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -58,6 +59,9 @@ public class Organization {
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Member> members = new ArrayList<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Vehicle> vehicles = new ArrayList<>();
 
     public void addMember(Member member) {
         members.add(member);
