@@ -2,6 +2,8 @@ package com.omarcosallan.fleetwise.services;
 
 import com.omarcosallan.fleetwise.domain.enums.Role;
 import com.omarcosallan.fleetwise.domain.member.Member;
+import com.omarcosallan.fleetwise.domain.organization.Organization;
+import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.member.MemberDTO;
 import com.omarcosallan.fleetwise.dto.member.UpdateMemberRequestDTO;
 import com.omarcosallan.fleetwise.exceptions.MemberNotFoundException;
@@ -76,5 +78,19 @@ public class MemberService {
 
         updatingMember.setRole(body.role());
         memberRepository.save(updatingMember);
+    }
+
+    @Transactional
+    public Member create(User user, Organization org, Role role) {
+        Member member = new Member();
+        member.setUser(user);
+        member.setOrganization(org);
+        member.setRole(role);
+        return memberRepository.save(member);
+    }
+
+    public Member findByEmailAndOrganizationId(String email, UUID organizationId) {
+        return (Member) memberRepository.findByUserEmailAndOrganizationId(email, organizationId)
+                .orElse(null);
     }
 }

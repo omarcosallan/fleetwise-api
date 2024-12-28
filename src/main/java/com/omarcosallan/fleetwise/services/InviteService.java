@@ -4,6 +4,7 @@ import com.omarcosallan.fleetwise.domain.enums.Role;
 import com.omarcosallan.fleetwise.domain.invite.Invite;
 import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.domain.organization.Organization;
+import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.invite.CreateInviteDTO;
 import com.omarcosallan.fleetwise.dto.invite.InviteDTO;
 import com.omarcosallan.fleetwise.exceptions.BadRequestException;
@@ -23,6 +24,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class InviteService {
+    @Autowired
+    private AuthService authService;
+
     @Autowired
     private InviteRepository inviteRepository;
 
@@ -67,10 +71,14 @@ public class InviteService {
             throw new BadRequestException("Users with " + domain + " domain will join your organization automatically on login.");
         }
 
-        Optional<Invite> inviteWithSameEmail = inviteRepository.findByEmailAndOrganizationId(email, org.getId());
+        inviteRepository.findByEmailAndOrganizationId(email, org.getId())
+                .ifPresent(invite -> {
+                    throw new BadRequestException("A member with this e-mail already belongs to your organization.");
+                });
 
-        if (inviteWithSameEmail.isPresent()) {
-            throw new BadRequestException("A member with this e-mail already belongs to your organization.");
+        Member memberAlreadyExists = memberService.findByEmailAndOrganizationId(email, org.getId());
+        if (memberAlreadyExists != null) {
+            throw new BadRequestException("A user with the email " + email + " already exists in your organization.");
         }
 
         Invite invite = new Invite();
@@ -88,5 +96,21 @@ public class InviteService {
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(InviteNotFoundException::new);
         return new ResponseWrapper<>("invite", InviteMapper.INSTANCE.toMemberDTO(invite));
+    }
+
+    @Transactional
+    public void acceptInvite(UUID inviteId) {
+        User user = authService.authenticated();
+
+        Invite invite = inviteRepository.findById(inviteId)
+                .orElseThrow(() -> new BadRequestException("Invite not found or expired."));
+
+        if (!invite.getEmail().equals(user.getEmail())) {
+            throw new BadRequestException("This invite belongs to another user.");
+        }
+
+        memberService.create(user, invite.getOrganization(), invite.getRole());
+
+        inviteRepository.deleteById(invite.getId());
     }
 }

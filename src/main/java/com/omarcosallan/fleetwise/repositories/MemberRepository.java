@@ -17,4 +17,6 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     void deleteByIdAndOrganizationId(UUID memberId, UUID id);
 
     Optional<Member> findByIdAndOrganizationId(UUID memberId, UUID id);
+
+    Optional<Object> findByUserEmailAndOrganizationId(String email, UUID organizationId);
 }
