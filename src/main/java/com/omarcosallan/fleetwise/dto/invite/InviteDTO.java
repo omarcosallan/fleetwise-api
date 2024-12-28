@@ -10,6 +10,7 @@ public record InviteDTO(UUID id,
                         Role role,
                         String email,
                         LocalDateTime createdAt,
+                        OrganizationName organization,
                         Author author) {
 
     public record Author(UUID id,
@@ -19,4 +20,6 @@ public record InviteDTO(UUID id,
             this(author.getId(), author.getName(), author.getAvatarUrl());
         }
     }
+
+    public record OrganizationName(String name) {}
 }

@@ -7,7 +7,9 @@ import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.dto.invite.CreateInviteDTO;
 import com.omarcosallan.fleetwise.dto.invite.InviteDTO;
 import com.omarcosallan.fleetwise.exceptions.BadRequestException;
+import com.omarcosallan.fleetwise.exceptions.InviteNotFoundException;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
+import com.omarcosallan.fleetwise.mappers.InviteMapper;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.repositories.InviteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ public class InviteService {
 
         List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(member.getOrganization().getId());
 
-        List<InviteDTO> result = invites.stream().map(i -> new InviteDTO(i.getId(), i.getRole(), i.getEmail(), i.getCreatedAt(), new InviteDTO.Author(i.getAuthor()))).collect(Collectors.toList());
+        List<InviteDTO> result = invites.stream().map(i -> new InviteDTO(i.getId(), i.getRole(), i.getEmail(), i.getCreatedAt(), new InviteDTO.OrganizationName(i.getOrganization().getName()), new InviteDTO.Author(i.getAuthor()))).collect(Collectors.toList());
 
         return new ResponseWrapper<>("invites", result);
     }
@@ -80,5 +82,11 @@ public class InviteService {
         inviteRepository.save(invite);
 
         return new ResponseWrapper<>("inviteId", invite.getId());
+    }
+
+    public ResponseWrapper<InviteDTO> getInvite(UUID inviteId) {
+        Invite invite = inviteRepository.findById(inviteId)
+                .orElseThrow(InviteNotFoundException::new);
+        return new ResponseWrapper<>("invite", InviteMapper.INSTANCE.toMemberDTO(invite));
     }
 }

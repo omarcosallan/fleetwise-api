@@ -12,20 +12,25 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value = "/organizations/{slug}/invites")
 public class InviteController {
     @Autowired
     private InviteService inviteService;
 
-    @GetMapping
+    @GetMapping(value = "/organizations/{slug}/invites")
     public ResponseEntity<ResponseWrapper<List<InviteDTO>>> getInvites(@PathVariable("slug") String slug) {
         ResponseWrapper<List<InviteDTO>> result = inviteService.getInvites(slug);
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping
+    @PostMapping(value = "/organizations/{slug}/invites")
     public ResponseEntity<ResponseWrapper<UUID>> createInvite(@PathVariable String slug, @RequestBody CreateInviteDTO body) {
         ResponseWrapper<UUID> result = inviteService.createInvite(slug, body);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(value = "/invites/{inviteId}")
+    public ResponseEntity<ResponseWrapper<InviteDTO>> getInvite(@PathVariable("inviteId") UUID inviteId) {
+        ResponseWrapper<InviteDTO> result = inviteService.getInvite(inviteId);
         return ResponseEntity.ok(result);
     }
 }
