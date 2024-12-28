@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class OrganizationService {
@@ -72,16 +71,13 @@ public class OrganizationService {
 
     public ResponseWrapper<OrganizationDTO> getOrganization(String slug) {
         Member member = memberService.getMember(slug);
-        OrganizationDTO org = OrganizationMapper.INSTANCE.toOrganizationDTO(member.getOrganization(), member.getRole());
+        OrganizationDTO org = OrganizationMapper.INSTANCE.toOrganizationDTO(member.getOrganization());
         return new ResponseWrapper<>("organization", org);
     }
 
-    public ResponseWrapper<List<OrganizationDTO>> getOrganizations() {
+    public ResponseWrapper<List<OrganizationWithOwnerDTO>> getOrganizations() {
         User user = authService.authenticated();
-        List<OrganizationDTO> orgs = organizationRepository.findOrganizationsByUserId(user.getId())
-                .stream()
-                .map(OrganizationMapper.INSTANCE::toOrganizationDTO)
-                .collect(Collectors.toList());
+        List<OrganizationWithOwnerDTO> orgs = organizationRepository.findOrganizationsByUserId(user.getId());
         return new ResponseWrapper<>("organizations", orgs);
     }
 

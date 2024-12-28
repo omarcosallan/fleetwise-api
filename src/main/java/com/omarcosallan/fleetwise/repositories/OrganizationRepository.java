@@ -1,7 +1,7 @@
 package com.omarcosallan.fleetwise.repositories;
 
 import com.omarcosallan.fleetwise.domain.organization.Organization;
-import com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationWithOwnerDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +17,6 @@ public interface OrganizationRepository extends JpaRepository<Organization, UUID
 
     Optional<Organization> findFirstByDomainAndShouldAttachUsersByDomainTrue(String domain);
 
-    @Query("SELECT new com.omarcosallan.fleetwise.dto.organization.OrganizationMinDTO(o.id, o.name, o.slug, o.avatarUrl, o.createdAt, m.role, o.owner) FROM Organization o JOIN o.members m WHERE m.user.id = :userId")
-    List<OrganizationMinDTO> findOrganizationsByUserId(@Param("userId") UUID userId);
+    @Query("SELECT new com.omarcosallan.fleetwise.dto.organization.OrganizationWithOwnerDTO(o.id, o.name, o.slug, o.domain, o.shouldAttachUsersByDomain, o.avatarUrl, o.createdAt, m.role, o.owner) FROM Organization o JOIN o.members m WHERE m.user.id = :userId")
+    List<OrganizationWithOwnerDTO> findOrganizationsByUserId(@Param("userId") UUID userId);
 }

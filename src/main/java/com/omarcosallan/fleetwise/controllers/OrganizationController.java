@@ -37,8 +37,8 @@ public class OrganizationController {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseWrapper<List<OrganizationDTO>>> getOrganizations() {
-        ResponseWrapper<List<OrganizationDTO>> result = organizationService.getOrganizations();
+    public ResponseEntity<ResponseWrapper<List<OrganizationWithOwnerDTO>>> getOrganizations() {
+        ResponseWrapper<List<OrganizationWithOwnerDTO>> result = organizationService.getOrganizations();
         return ResponseEntity.ok(result);
     }
 
