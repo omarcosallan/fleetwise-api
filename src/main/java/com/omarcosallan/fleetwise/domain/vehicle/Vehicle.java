@@ -1,6 +1,5 @@
 package com.omarcosallan.fleetwise.domain.vehicle;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import jakarta.persistence.*;
