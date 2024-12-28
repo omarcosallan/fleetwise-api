@@ -25,20 +25,20 @@ public class OrganizationController {
     }
 
     @GetMapping(value = "/{slug}/membership")
-    public ResponseEntity<ResponseWrapper<MembershipDTO>> getMembership(@PathVariable("slug") String slug) {
-        ResponseWrapper<MembershipDTO> result = organizationService.getMembership(slug);
+    public ResponseEntity<MembershipDTO> getMembership(@PathVariable("slug") String slug) {
+        MembershipDTO result = organizationService.getMembership(slug);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping(value = "/{slug}")
-    public ResponseEntity<ResponseWrapper<OrganizationDTO>> getOrganization(@PathVariable("slug") String slug) {
-        ResponseWrapper<OrganizationDTO> result = organizationService.getOrganization(slug);
+    public ResponseEntity<OrganizationDTO> getOrganization(@PathVariable("slug") String slug) {
+        OrganizationDTO result = organizationService.getOrganization(slug);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping
-    public ResponseEntity<ResponseWrapper<List<OrganizationWithOwnerDTO>>> getOrganizations() {
-        ResponseWrapper<List<OrganizationWithOwnerDTO>> result = organizationService.getOrganizations();
+    public ResponseEntity<List<OrganizationWithOwnerDTO>> getOrganizations() {
+        List<OrganizationWithOwnerDTO> result = organizationService.getOrganizations();
         return ResponseEntity.ok(result);
     }
 

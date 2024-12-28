@@ -1,7 +1,6 @@
 package com.omarcosallan.fleetwise.controllers;
 
 import com.omarcosallan.fleetwise.dto.vehicle.VehicleDTO;
-import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +19,8 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @GetMapping
-    public ResponseEntity<ResponseWrapper<List<VehicleDTO>>> getVehicles(@PathVariable("slug") String slug) {
-        ResponseWrapper<List<VehicleDTO>> result = vehicleService.getVehicles(slug);
+    public ResponseEntity<List<VehicleDTO>> getVehicles(@PathVariable("slug") String slug) {
+        List<VehicleDTO> result = vehicleService.getVehicles(slug);
         return ResponseEntity.ok(result);
     }
 }

@@ -18,8 +18,8 @@ public class MemberController {
     private MemberService memberService;
 
     @GetMapping
-    public ResponseEntity<ResponseWrapper<List<MemberDTO>>> getMembers(@PathVariable("slug") String slug) {
-        ResponseWrapper<List<MemberDTO>> result = memberService.getMembers(slug);
+    public ResponseEntity<List<MemberDTO>> getMembers(@PathVariable("slug") String slug) {
+        List<MemberDTO> result = memberService.getMembers(slug);
         return ResponseEntity.ok(result);
     }
 

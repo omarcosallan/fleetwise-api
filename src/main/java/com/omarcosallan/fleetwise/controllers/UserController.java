@@ -19,8 +19,8 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<ResponseWrapper<UserMinDTO>> create(@RequestBody CreateUserDTO body) {
-        ResponseWrapper<UserMinDTO> result = userService.create(body);
+    public ResponseEntity<UserMinDTO> create(@RequestBody CreateUserDTO body) {
+        UserMinDTO result = userService.create(body);
         return ResponseEntity.ok(result);
     }
 }

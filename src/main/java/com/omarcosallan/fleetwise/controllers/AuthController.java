@@ -23,8 +23,8 @@ public class AuthController {
     }
 
     @GetMapping(value = "/profile")
-    public ResponseEntity<ResponseWrapper<UserMinDTO>> getProfile() {
-        ResponseWrapper<UserMinDTO> result = authService.getProfile();
+    public ResponseEntity<UserMinDTO> getProfile() {
+        UserMinDTO result = authService.getProfile();
         return ResponseEntity.ok(result);
     }
 }

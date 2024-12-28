@@ -28,7 +28,7 @@ public class MemberService {
     @Autowired
     private AuthService authService;
 
-    public Member getMember(String slug) {
+    public Member getCurrentMember(String slug) {
         return memberRepository.findByUserIdAndOrganizationSlug(authService.authenticated().getId(), slug)
                 .orElseThrow(() -> new UnauthorizedException("You're not a member of this organization."));
     }
@@ -37,8 +37,8 @@ public class MemberService {
         return memberRepository.findByUserIdAndOrganizationId(transferToUserId, organizationId);
     }
 
-    public ResponseWrapper<List<MemberDTO>> getMembers(String slug) {
-        Member member = getMember(slug);
+    public List<MemberDTO> getMembers(String slug) {
+        Member member = getCurrentMember(slug);
 
         boolean canGetUser = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
         if (!canGetUser) {
@@ -47,14 +47,12 @@ public class MemberService {
 
         List<Member> members = memberRepository.findByOrganizationIdOrderByRoleAsc(member.getOrganization().getId());
 
-        List<MemberDTO> response = members.stream().map(MemberMapper.INSTANCE::toMemberDTO).collect(Collectors.toList());
-
-        return new ResponseWrapper<>("members", response);
+        return members.stream().map(MemberMapper.INSTANCE::toMemberDTO).collect(Collectors.toList());
     }
 
     @Transactional
     public void removeMember(String slug, UUID memberId) {
-        Member member = getMember(slug);
+        Member member = getCurrentMember(slug);
 
         boolean canDeleteUser = member.getRole() == Role.ADMIN;
         if (!canDeleteUser) {
@@ -66,7 +64,7 @@ public class MemberService {
 
     @Transactional
     public void updateMember(String slug, UUID memberId, UpdateMemberRequestDTO body) {
-        Member member = getMember(slug);
+        Member member = getCurrentMember(slug);
 
         boolean canUpdateUser = member.getRole() == Role.ADMIN;
         if (!canUpdateUser) {

@@ -26,7 +26,7 @@ public class UserService {
     private OrganizationService organizationService;
 
     @Transactional
-    public ResponseWrapper<UserMinDTO> create(CreateUserDTO body) {
+    public UserMinDTO create(CreateUserDTO body) {
         userRepository.findByEmail(body.email()).ifPresent(user -> {
             throw new UserAlreadyExistsException();
         });
@@ -53,7 +53,6 @@ public class UserService {
 
         userRepository.save(user);
 
-        UserMinDTO userMinDTO = UserMinMapper.INSTANCE.toUserMinDTO(user);
-        return new ResponseWrapper<>("user", userMinDTO);
+        return UserMinMapper.INSTANCE.toUserMinDTO(user);
     }
 }

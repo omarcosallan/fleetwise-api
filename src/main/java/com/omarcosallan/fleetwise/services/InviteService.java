@@ -32,8 +32,8 @@ public class InviteService {
     @Autowired
     private MemberService memberService;
 
-    public ResponseWrapper<List<InviteDTO>> getInvites(String slug) {
-        Member member = memberService.getMember(slug);
+    public List<InviteDTO> getInvites(String slug) {
+        Member member = memberService.getCurrentMember(slug);
 
         boolean canGetInvite = member.getRole() == Role.ADMIN;
         if (!canGetInvite) {
@@ -42,14 +42,12 @@ public class InviteService {
 
         List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(member.getOrganization().getId());
 
-        List<InviteDTO> result = invites.stream().map(i -> new InviteDTO(i.getId(), i.getRole(), i.getEmail(), i.getCreatedAt(), new InviteDTO.OrganizationName(i.getOrganization().getName()), new InviteDTO.Author(i.getAuthor()))).collect(Collectors.toList());
-
-        return new ResponseWrapper<>("invites", result);
+        return invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList());
     }
 
     @Transactional
     public ResponseWrapper<UUID> createInvite(String slug, CreateInviteDTO body) {
-        Member member = memberService.getMember(slug);
+        Member member = memberService.getCurrentMember(slug);
 
         boolean canCreateInvite = member.getRole() == Role.ADMIN;
         if (!canCreateInvite) {
@@ -91,10 +89,10 @@ public class InviteService {
         return new ResponseWrapper<>("inviteId", invite.getId());
     }
 
-    public ResponseWrapper<InviteDTO> getInvite(UUID inviteId) {
+    public InviteDTO getInvite(UUID inviteId) {
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(InviteNotFoundException::new);
-        return new ResponseWrapper<>("invite", InviteMapper.INSTANCE.toInviteDTO(invite));
+        return InviteMapper.INSTANCE.toInviteDTO(invite);
     }
 
     @Transactional
@@ -129,7 +127,7 @@ public class InviteService {
 
     @Transactional
     public void revokeInvite(String slug, UUID inviteId) {
-        Member member = memberService.getMember(slug);
+        Member member = memberService.getCurrentMember(slug);
 
         boolean canDeleteInvite = member.getRole() == Role.ADMIN;
         if (!canDeleteInvite) {
@@ -142,11 +140,11 @@ public class InviteService {
         inviteRepository.deleteById(inviteId);
     }
 
-    public ResponseWrapper<List<InviteDTO>> getPendingInvites() {
+    public List<InviteDTO> getPendingInvites() {
         User user = authService.authenticated();
 
         List<Invite> invites = inviteRepository.findByEmail(user.getEmail());
 
-        return new ResponseWrapper<>("invites", invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList()));
+        return  invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList());
     }
 }

@@ -3,7 +3,6 @@ package com.omarcosallan.fleetwise.services;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.user.LoginResponseDTO;
 import com.omarcosallan.fleetwise.dto.user.UserMinDTO;
-import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.mappers.UserMinMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,10 +28,9 @@ public class AuthService {
         return new LoginResponseDTO(token, "7d");
     }
 
-    public ResponseWrapper<UserMinDTO> getProfile() {
+    public UserMinDTO getProfile() {
         User user = authenticated();
-        UserMinDTO userMinDTO = UserMinMapper.INSTANCE.toUserMinDTO(user);
-        return new ResponseWrapper<>("user", userMinDTO);
+        return UserMinMapper.INSTANCE.toUserMinDTO(user);
     }
 
     public User authenticated() {

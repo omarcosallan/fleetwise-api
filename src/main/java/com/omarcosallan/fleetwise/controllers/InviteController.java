@@ -17,8 +17,8 @@ public class InviteController {
     private InviteService inviteService;
 
     @GetMapping(value = "/organizations/{slug}/invites")
-    public ResponseEntity<ResponseWrapper<List<InviteDTO>>> getInvites(@PathVariable("slug") String slug) {
-        ResponseWrapper<List<InviteDTO>> result = inviteService.getInvites(slug);
+    public ResponseEntity<List<InviteDTO>> getInvites(@PathVariable("slug") String slug) {
+        List<InviteDTO> result = inviteService.getInvites(slug);
         return ResponseEntity.ok(result);
     }
 
@@ -29,8 +29,8 @@ public class InviteController {
     }
 
     @GetMapping(value = "/invites/{inviteId}")
-    public ResponseEntity<ResponseWrapper<InviteDTO>> getInvite(@PathVariable("inviteId") UUID inviteId) {
-        ResponseWrapper<InviteDTO> result = inviteService.getInvite(inviteId);
+    public ResponseEntity<InviteDTO> getInvite(@PathVariable("inviteId") UUID inviteId) {
+        InviteDTO result = inviteService.getInvite(inviteId);
         return ResponseEntity.ok(result);
     }
 
@@ -53,8 +53,8 @@ public class InviteController {
     }
 
     @GetMapping(value = "/pending-invites")
-    public ResponseEntity<ResponseWrapper<List<InviteDTO>>> getPendingInvites() {
-        ResponseWrapper<List<InviteDTO>> result = inviteService.getPendingInvites();
+    public ResponseEntity<List<InviteDTO>> getPendingInvites() {
+        List<InviteDTO> result = inviteService.getPendingInvites();
         return ResponseEntity.ok(result);
     }
 }

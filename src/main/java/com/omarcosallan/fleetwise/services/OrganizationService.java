@@ -63,27 +63,24 @@ public class OrganizationService {
         return new ResponseWrapper<UUID>("organizationId", organization.getId());
     }
 
-    public ResponseWrapper<MembershipDTO> getMembership(String slug) {
-        Member member = memberService.getMember(slug);
-        MembershipDTO membershipDTO = MembershipMapper.INSTANCE.toMembershipDTO(member);
-        return new ResponseWrapper<>("membership", membershipDTO);
+    public MembershipDTO getMembership(String slug) {
+        Member member = memberService.getCurrentMember(slug);
+        return MembershipMapper.INSTANCE.toMembershipDTO(member);
     }
 
-    public ResponseWrapper<OrganizationDTO> getOrganization(String slug) {
-        Member member = memberService.getMember(slug);
-        OrganizationDTO org = OrganizationMapper.INSTANCE.toOrganizationDTO(member.getOrganization());
-        return new ResponseWrapper<>("organization", org);
+    public OrganizationDTO getOrganization(String slug) {
+        Member member = memberService.getCurrentMember(slug);
+        return OrganizationMapper.INSTANCE.toOrganizationDTO(member.getOrganization());
     }
 
-    public ResponseWrapper<List<OrganizationWithOwnerDTO>> getOrganizations() {
+    public List<OrganizationWithOwnerDTO> getOrganizations() {
         User user = authService.authenticated();
-        List<OrganizationWithOwnerDTO> orgs = organizationRepository.findOrganizationsByUserId(user.getId());
-        return new ResponseWrapper<>("organizations", orgs);
+        return organizationRepository.findOrganizationsByUserId(user.getId());
     }
 
     @Transactional
     public void updateOrganization(String slug, UpdateOrganizationDTO body) {
-        Member member = memberService.getMember(slug);
+        Member member = memberService.getCurrentMember(slug);
 
         boolean canUpdateOrganization = member.getRole().equals(Role.ADMIN);
         if (!canUpdateOrganization) {
@@ -115,7 +112,7 @@ public class OrganizationService {
 
     @Transactional
     public void shutdownOrganization(String slug) {
-        Member member = memberService.getMember(slug);
+        Member member = memberService.getCurrentMember(slug);
 
         boolean canDeleteOrganization = member.getRole().equals(Role.ADMIN);
         if (!canDeleteOrganization) {
@@ -127,7 +124,7 @@ public class OrganizationService {
 
     @Transactional
     public void transferOrganization(String slug, TransferOrganizationRequestDTO body) {
-        Member member = memberService.getMember(slug);
+        Member member = memberService.getCurrentMember(slug);
         Organization organization = member.getOrganization();
 
         boolean canTransferOwnership = member.getRole() == Role.ADMIN
