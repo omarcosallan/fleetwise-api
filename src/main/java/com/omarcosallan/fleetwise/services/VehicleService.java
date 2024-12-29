@@ -34,10 +34,10 @@ public class VehicleService {
     public UUID createVehicle(String slug, CreateVehicleDTO body) {
         Member member = memberService.getCurrentMember(slug);
 
-        boolean canCreateVehicle = member.getRole().equals(Role.ADMIN);
-        if (!canCreateVehicle) {
-            throw new UnauthorizedException("You're not allowed to create new vehicles.");
-        }
+//        boolean canCreateVehicle = member.getRole().equals(Role.ADMIN);
+//        if (!canCreateVehicle) {
+//            throw new UnauthorizedException("You're not allowed to create new vehicles.");
+//        }
 
         vehicleRepository.findByPlateOrRegister(body.plate(), body.register())
                 .ifPresent(vehicle -> {

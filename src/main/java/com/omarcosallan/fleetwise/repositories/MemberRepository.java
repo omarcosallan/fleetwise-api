@@ -12,11 +12,11 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
     Optional<Member> findByUserIdAndOrganizationId(UUID transferToUserId, UUID organizationId);
 
-    List<Member> findByOrganizationIdOrderByRoleAsc(UUID id);
+    List<Member> findByOrganizationSlugOrderByRoleAsc(String slug);
 
-    void deleteByIdAndOrganizationId(UUID memberId, UUID id);
+    void deleteByIdAndOrganizationSlug(UUID memberId, String slug);
 
-    Optional<Member> findByIdAndOrganizationId(UUID memberId, UUID id);
+    Optional<Member> findByIdAndOrganizationSlug(UUID memberId, String slug);
 
     Optional<Object> findByUserEmailAndOrganizationId(String email, UUID organizationId);
 }

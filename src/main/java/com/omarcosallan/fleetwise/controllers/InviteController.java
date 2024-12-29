@@ -6,6 +6,7 @@ import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.InviteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,12 +18,14 @@ public class InviteController {
     private InviteService inviteService;
 
     @GetMapping(value = "/organizations/{slug}/invites")
+    @PreAuthorize("@authorizationService.hasPermission(#slug, 'get', 'Invite')")
     public ResponseEntity<List<InviteDTO>> getInvites(@PathVariable("slug") String slug) {
         List<InviteDTO> result = inviteService.getInvites(slug);
         return ResponseEntity.ok(result);
     }
 
     @PostMapping(value = "/organizations/{slug}/invites")
+    @PreAuthorize("@authorizationService.hasPermission(#slug, 'create', 'Invite')")
     public ResponseEntity<ResponseWrapper<UUID>> createInvite(@PathVariable String slug, @RequestBody CreateInviteDTO body) {
         ResponseWrapper<UUID> result = inviteService.createInvite(slug, body);
         return ResponseEntity.ok(result);
@@ -47,6 +50,7 @@ public class InviteController {
     }
 
     @DeleteMapping(value = "/organizations/{slug}/invites/{inviteId}")
+    @PreAuthorize("@authorizationService.hasPermission(#slug, 'delete', 'Invite')")
     public ResponseEntity<Void> revokeInvite(@PathVariable("slug") String slug, @PathVariable("inviteId") UUID inviteId) {
         inviteService.revokeInvite(slug, inviteId);
         return ResponseEntity.noContent().build();

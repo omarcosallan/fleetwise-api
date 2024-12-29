@@ -6,10 +6,10 @@ import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.member.MemberDTO;
 import com.omarcosallan.fleetwise.dto.member.UpdateMemberRequestDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
 import com.omarcosallan.fleetwise.exceptions.MemberNotFoundException;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.mappers.MemberMapper;
-import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,11 +25,8 @@ public class MemberService {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
-    private AuthService authService;
-
     public Member getCurrentMember(String slug) {
-        return memberRepository.findByUserIdAndOrganizationSlug(authService.authenticated().getId(), slug)
+        return memberRepository.findByUserIdAndOrganizationSlug(AuthService.authenticated().getId(), slug)
                 .orElseThrow(() -> new UnauthorizedException("You're not a member of this organization."));
     }
 
@@ -38,43 +35,22 @@ public class MemberService {
     }
 
     public List<MemberDTO> getMembers(String slug) {
-        Member member = getCurrentMember(slug);
-
-        boolean canGetUser = member.getRole() == Role.MEMBER || member.getRole() == Role.ADMIN;
-        if (!canGetUser) {
-            throw new UnauthorizedException("You're not allowed to see organization members.");
-        }
-
-        List<Member> members = memberRepository.findByOrganizationIdOrderByRoleAsc(member.getOrganization().getId());
-
+        List<Member> members = memberRepository.findByOrganizationSlugOrderByRoleAsc(slug);
         return members.stream().map(MemberMapper.INSTANCE::toMemberDTO).collect(Collectors.toList());
     }
 
     @Transactional
     public void removeMember(String slug, UUID memberId) {
-        Member member = getCurrentMember(slug);
-
-        boolean canDeleteUser = member.getRole() == Role.ADMIN;
-        if (!canDeleteUser) {
-            throw new UnauthorizedException("You're not allowed to remove this member from organization.");
-        }
-
-        memberRepository.deleteByIdAndOrganizationId(memberId, member.getOrganization().getId());
+        memberRepository.deleteByIdAndOrganizationSlug(memberId, slug);
     }
 
     @Transactional
     public void updateMember(String slug, UUID memberId, UpdateMemberRequestDTO body) {
-        Member member = getCurrentMember(slug);
-
-        boolean canUpdateUser = member.getRole() == Role.ADMIN;
-        if (!canUpdateUser) {
-            throw new UnauthorizedException("You're not allowed to update this member.");
-        }
-
-        Member updatingMember = memberRepository.findByIdAndOrganizationId(memberId, member.getOrganization().getId())
+        Member updatingMember = memberRepository.findByIdAndOrganizationSlug(memberId, slug)
                 .orElseThrow(MemberNotFoundException::new);
 
         updatingMember.setRole(body.role());
+
         memberRepository.save(updatingMember);
     }
 

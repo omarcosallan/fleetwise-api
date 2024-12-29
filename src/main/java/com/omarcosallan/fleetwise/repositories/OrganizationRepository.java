@@ -19,4 +19,8 @@ public interface OrganizationRepository extends JpaRepository<Organization, UUID
 
     @Query("SELECT new com.omarcosallan.fleetwise.dto.organization.OrganizationWithOwnerDTO(o.id, o.name, o.slug, o.domain, o.shouldAttachUsersByDomain, o.avatarUrl, o.createdAt, m.role, o.owner) FROM Organization o JOIN o.members m WHERE m.user.id = :userId")
     List<OrganizationWithOwnerDTO> findOrganizationsByUserId(@Param("userId") UUID userId);
+
+    Organization findBySlug(String slug);
+
+    void deleteBySlug(String slug);
 }

@@ -1,15 +1,14 @@
 package com.omarcosallan.fleetwise.services;
 
-import com.omarcosallan.fleetwise.domain.enums.Role;
 import com.omarcosallan.fleetwise.domain.invite.Invite;
 import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.invite.CreateInviteDTO;
 import com.omarcosallan.fleetwise.dto.invite.InviteDTO;
+import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
 import com.omarcosallan.fleetwise.exceptions.BadRequestException;
 import com.omarcosallan.fleetwise.exceptions.InviteNotFoundException;
-import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.mappers.InviteMapper;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.repositories.InviteRepository;
@@ -24,36 +23,24 @@ import java.util.stream.Collectors;
 @Service
 public class InviteService {
     @Autowired
-    private AuthService authService;
-
-    @Autowired
     private InviteRepository inviteRepository;
 
     @Autowired
     private MemberService memberService;
 
+    @Autowired
+    private OrganizationService organizationService;
+
     public List<InviteDTO> getInvites(String slug) {
-        Member member = memberService.getCurrentMember(slug);
+        OrganizationDTO org = organizationService.getOrganization(slug);
 
-        boolean canGetInvite = member.getRole() == Role.ADMIN;
-        if (!canGetInvite) {
-            throw new UnauthorizedException("You're not allowed to get organization invites.");
-        }
-
-        List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(member.getOrganization().getId());
+        List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(org.id());
 
         return invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList());
     }
 
     @Transactional
     public ResponseWrapper<UUID> createInvite(String slug, CreateInviteDTO body) {
-        Member member = memberService.getCurrentMember(slug);
-
-        boolean canCreateInvite = member.getRole() == Role.ADMIN;
-        if (!canCreateInvite) {
-            throw new UnauthorizedException("You're not allowed to create new invites.");
-        }
-
         String email = body.email();
         String[] emailParts = email.split("@");
         if (emailParts.length != 2) {
@@ -61,7 +48,7 @@ public class InviteService {
         }
         String domain = emailParts[1];
 
-        Organization org = member.getOrganization();
+        Organization org = organizationService.getEntityOrganization(slug);
 
         if (org.isShouldAttachUsersByDomain() &&
                 domain.equals(org.getDomain())) {
@@ -82,7 +69,7 @@ public class InviteService {
         invite.setOrganization(org);
         invite.setEmail(email);
         invite.setRole(body.role());
-        invite.setAuthor(member.getUser());
+        invite.setAuthor(AuthService.authenticated());
 
         inviteRepository.save(invite);
 
@@ -97,7 +84,7 @@ public class InviteService {
 
     @Transactional
     public void acceptInvite(UUID inviteId) {
-        User user = authService.authenticated();
+        User user = AuthService.authenticated();
 
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(() -> new BadRequestException("Invite not found or expired."));
@@ -113,7 +100,7 @@ public class InviteService {
 
     @Transactional
     public void rejectInvite(UUID inviteId) {
-        User user = authService.authenticated();
+        User user = AuthService.authenticated();
 
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(() -> new BadRequestException("Invite not found or expired."));
@@ -127,24 +114,17 @@ public class InviteService {
 
     @Transactional
     public void revokeInvite(String slug, UUID inviteId) {
-        Member member = memberService.getCurrentMember(slug);
+        Organization org = organizationService.getEntityOrganization(slug);
 
-        boolean canDeleteInvite = member.getRole() == Role.ADMIN;
-        if (!canDeleteInvite) {
-            throw new UnauthorizedException("You're not allowed to delete an invite.");
-        }
-
-        inviteRepository.findByIdAndOrganizationId(inviteId, member.getOrganization().getId())
+        inviteRepository.findByIdAndOrganizationId(inviteId, org.getId())
                 .orElseThrow(InviteNotFoundException::new);
 
         inviteRepository.deleteById(inviteId);
     }
 
     public List<InviteDTO> getPendingInvites() {
-        User user = authService.authenticated();
-
+        User user = AuthService.authenticated();
         List<Invite> invites = inviteRepository.findByEmail(user.getEmail());
-
         return  invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList());
     }
 }

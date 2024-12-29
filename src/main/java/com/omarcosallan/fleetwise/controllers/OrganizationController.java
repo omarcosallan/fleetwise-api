@@ -7,6 +7,7 @@ import com.omarcosallan.fleetwise.services.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,18 +44,21 @@ public class OrganizationController {
     }
 
     @PutMapping(value = "/{slug}")
+    @PreAuthorize("@authorizationService.hasPermission(#slug, 'update', 'Organization')")
     public ResponseEntity<Void> updateOrganization(@PathVariable("slug") String slug, @RequestBody UpdateOrganizationDTO body) {
         organizationService.updateOrganization(slug, body);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping(value = "/{slug}")
+    @PreAuthorize("@authorizationService.hasPermission(#slug, 'delete', 'Organization')")
     public ResponseEntity<Void> shutdownOrganization(@PathVariable("slug") String slug) {
         organizationService.shutdownOrganization(slug);
         return ResponseEntity.noContent().build();
     }
 
     @PatchMapping(value = "/{slug}/owner")
+    @PreAuthorize("@authorizationService.hasPermission(#slug, 'transfer_ownership', 'Organization')")
     public ResponseEntity<Void> transferOrganization(@PathVariable("slug") String slug, @RequestBody TransferOrganizationRequestDTO body) {
         organizationService.transferOrganization(slug, body);
         return ResponseEntity.noContent().build();

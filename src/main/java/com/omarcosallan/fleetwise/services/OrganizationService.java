@@ -25,9 +25,6 @@ import java.util.UUID;
 @Service
 public class OrganizationService {
     @Autowired
-    private AuthService authService;
-
-    @Autowired
     private OrganizationRepository organizationRepository;
 
     @Autowired
@@ -35,7 +32,7 @@ public class OrganizationService {
 
     @Transactional
     public ResponseWrapper<UUID> createOrganization(CreateOrganizationRequestDTO body) {
-        User currentUser = authService.authenticated();
+        User currentUser = AuthService.authenticated();
 
         if (body.domain() != null) {
             Optional<Organization> organizationByDomain = organizationRepository.findByDomain(body.domain());
@@ -68,26 +65,23 @@ public class OrganizationService {
         return MembershipMapper.INSTANCE.toMembershipDTO(member);
     }
 
+    public Organization getEntityOrganization(String slug) {
+        return organizationRepository.findBySlug(slug);
+    }
+
     public OrganizationDTO getOrganization(String slug) {
-        Member member = memberService.getCurrentMember(slug);
-        return OrganizationMapper.INSTANCE.toOrganizationDTO(member.getOrganization());
+        Organization org = organizationRepository.findBySlug(slug);
+        return OrganizationMapper.INSTANCE.toOrganizationDTO(org);
     }
 
     public List<OrganizationWithOwnerDTO> getOrganizations() {
-        User user = authService.authenticated();
+        User user = AuthService.authenticated();
         return organizationRepository.findOrganizationsByUserId(user.getId());
     }
 
     @Transactional
     public void updateOrganization(String slug, UpdateOrganizationDTO body) {
-        Member member = memberService.getCurrentMember(slug);
-
-        boolean canUpdateOrganization = member.getRole().equals(Role.ADMIN);
-        if (!canUpdateOrganization) {
-            throw new UnauthorizedException("You're not allowed to update this organization.");
-        }
-
-        Organization organization = member.getOrganization();
+        Organization organization = organizationRepository.findBySlug(slug);
 
         if (body.domain() != null) {
             Optional<Organization> organizationByDomain = organizationRepository.findFirstByDomainAndIdNot(body.domain(), organization.getId());
@@ -112,26 +106,12 @@ public class OrganizationService {
 
     @Transactional
     public void shutdownOrganization(String slug) {
-        Member member = memberService.getCurrentMember(slug);
-
-        boolean canDeleteOrganization = member.getRole().equals(Role.ADMIN);
-        if (!canDeleteOrganization) {
-            throw new UnauthorizedException("You're not allowed to shutdown this organization.");
-        }
-
-        organizationRepository.deleteById(member.getOrganization().getId());
+        organizationRepository.deleteBySlug(slug);
     }
 
     @Transactional
     public void transferOrganization(String slug, TransferOrganizationRequestDTO body) {
-        Member member = memberService.getCurrentMember(slug);
-        Organization organization = member.getOrganization();
-
-        boolean canTransferOwnership = member.getRole() == Role.ADMIN
-                && organization.getOwner().equals(member.getUser());
-        if (!canTransferOwnership) {
-            throw new UnauthorizedException("You're not allowed to transfer this organization ownership.");
-        }
+        Organization organization = organizationRepository.findBySlug(slug);
 
         Member transferMembership = memberService
                 .findByUserIdAndOrganizationId(body.transferToUserId(), organization.getId())

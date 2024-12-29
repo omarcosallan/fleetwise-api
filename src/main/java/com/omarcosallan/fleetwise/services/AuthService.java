@@ -33,7 +33,7 @@ public class AuthService {
         return UserMinMapper.INSTANCE.toUserMinDTO(user);
     }
 
-    public User authenticated() {
+    public static User authenticated() {
         return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }
