@@ -45,10 +45,10 @@ public class Vehicle {
     private LocalDateTime updatedAt;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User createdBy;
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private Organization owner;
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 }

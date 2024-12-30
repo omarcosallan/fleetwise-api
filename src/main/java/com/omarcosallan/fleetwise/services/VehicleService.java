@@ -4,6 +4,7 @@ import com.omarcosallan.fleetwise.domain.enums.Role;
 import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.domain.vehicle.Vehicle;
 import com.omarcosallan.fleetwise.dto.vehicle.CreateVehicleDTO;
+import com.omarcosallan.fleetwise.dto.vehicle.UpdateVehicleDTO;
 import com.omarcosallan.fleetwise.dto.vehicle.VehicleDTO;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.exceptions.VehicleAlreadyExistsException;
@@ -28,7 +29,7 @@ public class VehicleService {
     private MemberService memberService;
 
     public List<VehicleDTO> getVehicles(String slug) {
-        List<Vehicle> result = vehicleRepository.findAllByOwnerSlugOrderByCreatedAtDesc(slug);
+        List<Vehicle> result = vehicleRepository.findAllByOrganizationSlugOrderByCreatedAtDesc(slug);
         return result.stream().map(VehicleMapper.INSTANCE::toVehicleDTO).collect(Collectors.toList());
     }
 
@@ -49,8 +50,8 @@ public class VehicleService {
         vehicle.setRegister(body.register());
         vehicle.setActive(body.active());
         vehicle.setRented(body.rented());
-        vehicle.setCreatedBy(member.getUser());
-        vehicle.setOwner(member.getOrganization());
+        vehicle.setOwner(member.getUser());
+        vehicle.setOrganization(member.getOrganization());
 
         vehicleRepository.save(vehicle);
 
@@ -58,8 +59,21 @@ public class VehicleService {
     }
 
     public VehicleDTO getVehicle(String slug, UUID vehicleId) {
-        Vehicle result = vehicleRepository.findByOwnerSlugAndId(slug, vehicleId)
+        Vehicle result = vehicleRepository.findByOrganizationSlugAndId(slug, vehicleId)
                 .orElseThrow(VehicleNotFoundException::new);
         return VehicleMapper.INSTANCE.toVehicleDTO(result);
+    }
+
+    public void updateVehicle(String slug, String plate, UpdateVehicleDTO body) {
+        Vehicle vehicle = vehicleRepository.findByOrganizationSlugAndPlate(slug, plate)
+                .orElseThrow(VehicleNotFoundException::new);
+
+        vehicle.setModel(body.model());
+        vehicle.setManufacturer(body.manufacturer());
+        vehicle.setManufacturingYear(body.manufacturingYear());
+        vehicle.setRented(body.rented());
+        vehicle.setActive(body.active());
+
+        vehicleRepository.save(vehicle);
     }
 }

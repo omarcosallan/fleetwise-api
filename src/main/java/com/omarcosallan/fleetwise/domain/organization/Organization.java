@@ -60,7 +60,7 @@ public class Organization {
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Member> members = new ArrayList<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vehicle> vehicles = new ArrayList<>();
 
     public void addMember(Member member) {

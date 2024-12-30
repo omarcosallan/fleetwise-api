@@ -8,9 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
-    List<Vehicle> findAllByOwnerSlugOrderByCreatedAtDesc(String slug);
+    List<Vehicle> findAllByOrganizationSlugOrderByCreatedAtDesc(String slug);
 
     Optional<Vehicle> findByPlateOrRegister(String plate, String register);
 
-    Optional<Vehicle> findByOwnerSlugAndId(String slug, UUID vehicleId);
+    Optional<Vehicle> findByOrganizationSlugAndId(String slug, UUID vehicleId);
+
+    Optional<Vehicle> findByOrganizationSlugAndPlate(String slug, String plate);
 }

@@ -10,7 +10,7 @@ import org.mapstruct.factory.Mappers;
 public interface VehicleMapper {
     VehicleMapper INSTANCE = Mappers.getMapper(VehicleMapper.class);
 
-    @Mapping(target = "author", source = "vehicle.createdBy")
-    @Mapping(target = "organizationId", source = "vehicle.owner.id")
+    @Mapping(target = "author", source = "vehicle.owner")
+    @Mapping(target = "organizationId", source = "vehicle.organization.id")
     VehicleDTO toVehicleDTO(Vehicle vehicle);
 }

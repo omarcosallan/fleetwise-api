@@ -1,6 +1,7 @@
 package com.omarcosallan.fleetwise.controllers;
 
 import com.omarcosallan.fleetwise.dto.vehicle.CreateVehicleDTO;
+import com.omarcosallan.fleetwise.dto.vehicle.UpdateVehicleDTO;
 import com.omarcosallan.fleetwise.dto.vehicle.VehicleDTO;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.VehicleService;
@@ -37,5 +38,11 @@ public class VehicleController {
     public ResponseEntity<VehicleDTO> getVehicle(@PathVariable("slug") String slug, @PathVariable("vehicleId") UUID vehicleId) {
         VehicleDTO result = vehicleService.getVehicle(slug, vehicleId);
         return ResponseEntity.ok(result);
+    }
+
+    @PutMapping(value = "/{plate}")
+    public ResponseEntity<Void> updateVehicle(@PathVariable("slug") String slug, @PathVariable("plate") String plate, @RequestBody UpdateVehicleDTO body) {
+        vehicleService.updateVehicle(slug, plate, body);
+        return ResponseEntity.noContent().build();
     }
 }
