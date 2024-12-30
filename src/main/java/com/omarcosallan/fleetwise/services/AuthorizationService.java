@@ -34,11 +34,9 @@ public class AuthorizationService implements UserDetailsService {
 
         Map<String, Predicate<Member>> specificPermissions = Map.of(
                 "ADMIN_Organization_transfer_ownership", m -> organization.getOwner().equals(m.getUser()),
-                "ADMIN_Organization_update", m -> organization.getOwner().equals(m.getUser()),
                 "MEMBER_Vehicle_create", m -> true,
                 "MEMBER_Vehicle_get", m -> true,
-                "MEMBER_Vehicle_update", m -> organization.getOwner().equals(m.getUser()),
-                "MEMBER_Vehicle_delete", m -> organization.getOwner().equals(m.getUser()),
+                "MEMBER_Member_get", m -> true,
                 "BILLING_Billing_manage", m -> true
         );
 
