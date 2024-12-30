@@ -11,4 +11,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
     List<Vehicle> findAllByOwnerSlugOrderByCreatedAtDesc(String slug);
 
     Optional<Vehicle> findByPlateOrRegister(String plate, String register);
+
+    Optional<Vehicle> findByOwnerSlugAndId(String slug, UUID vehicleId);
 }

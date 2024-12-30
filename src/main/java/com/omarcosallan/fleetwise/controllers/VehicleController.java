@@ -5,6 +5,7 @@ import com.omarcosallan.fleetwise.dto.vehicle.VehicleDTO;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class VehicleController {
     @PreAuthorize("@authorizationService.hasPermission(#slug, 'create', 'Vehicle')")
     public ResponseEntity<ResponseWrapper<UUID>> createVehicle(@PathVariable("slug") String slug, @RequestBody CreateVehicleDTO body) {
         UUID vehicleId = vehicleService.createVehicle(slug, body);
-        return ResponseEntity.ok(new ResponseWrapper<>("vehicleId", vehicleId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseWrapper<>("vehicleId", vehicleId));
+    }
+
+    @GetMapping(value = "/{vehicleId}")
+    public ResponseEntity<VehicleDTO> getVehicle(@PathVariable("slug") String slug, @PathVariable("vehicleId") UUID vehicleId) {
+        VehicleDTO result = vehicleService.getVehicle(slug, vehicleId);
+        return ResponseEntity.ok(result);
     }
 }

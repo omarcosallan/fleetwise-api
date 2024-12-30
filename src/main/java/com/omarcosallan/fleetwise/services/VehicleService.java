@@ -7,9 +7,11 @@ import com.omarcosallan.fleetwise.dto.vehicle.CreateVehicleDTO;
 import com.omarcosallan.fleetwise.dto.vehicle.VehicleDTO;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.exceptions.VehicleAlreadyExistsException;
+import com.omarcosallan.fleetwise.exceptions.VehicleNotFoundException;
 import com.omarcosallan.fleetwise.mappers.VehicleMapper;
 import com.omarcosallan.fleetwise.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,11 +36,6 @@ public class VehicleService {
     public UUID createVehicle(String slug, CreateVehicleDTO body) {
         Member member = memberService.getCurrentMember(slug);
 
-//        boolean canCreateVehicle = member.getRole().equals(Role.ADMIN);
-//        if (!canCreateVehicle) {
-//            throw new UnauthorizedException("You're not allowed to create new vehicles.");
-//        }
-
         vehicleRepository.findByPlateOrRegister(body.plate(), body.register())
                 .ifPresent(vehicle -> {
                     throw new VehicleAlreadyExistsException();
@@ -58,5 +55,11 @@ public class VehicleService {
         vehicleRepository.save(vehicle);
 
         return vehicle.getId();
+    }
+
+    public VehicleDTO getVehicle(String slug, UUID vehicleId) {
+        Vehicle result = vehicleRepository.findByOwnerSlugAndId(slug, vehicleId)
+                .orElseThrow(VehicleNotFoundException::new);
+        return VehicleMapper.INSTANCE.toVehicleDTO(result);
     }
 }

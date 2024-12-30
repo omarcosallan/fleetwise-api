@@ -6,6 +6,7 @@ import java.util.UUID;
 public record VehicleDTO(UUID id,
                          String model,
                          String manufacturer,
+                         Integer manufacturingYear,
                          String plate,
                          String register,
                          Boolean active,
