@@ -3,7 +3,6 @@ package com.omarcosallan.fleetwise.services;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.user.LoginResponseDTO;
 import com.omarcosallan.fleetwise.dto.user.UserMinDTO;
-import com.omarcosallan.fleetwise.mappers.UserMinMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +29,7 @@ public class AuthService {
 
     public UserMinDTO getProfile() {
         User user = authenticated();
-        return UserMinMapper.INSTANCE.toUserMinDTO(user);
+        return new UserMinDTO(user.getId(), user.getName(), user.getEmail(), user.getAvatarUrl());
     }
 
     public static User authenticated() {
