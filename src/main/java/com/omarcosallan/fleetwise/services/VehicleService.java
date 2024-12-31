@@ -36,7 +36,7 @@ public class VehicleService {
 
     public GetVehicleResponse getVehicles(String slug, int pageSize, int pageIndex, String search) {
         Pageable pageable = PageRequest.of(pageIndex, pageSize, Sort.Direction.DESC, "createdAt");
-        Page<VehicleOrgAndAuthorProjection> pages = vehicleRepository.findAllByOrganizationSlugAndFiltered(slug, search != null ? search.toLowerCase() : null, pageable);
+        Page<VehicleOrgAndAuthorProjection> pages = vehicleRepository.findAllByOrganizationSlugAndFiltered(slug, search == null ? null : search.toLowerCase(), pageable);
 
         List<VehicleResponseDTO> vehicleResponseDTOS = pages.getContent().stream()
                 .map(vehicle -> new VehicleResponseDTO(
@@ -52,7 +52,7 @@ public class VehicleService {
                         vehicle.getOrganizationId(),
                         new VehicleResponseDTO.Author(vehicle.getAuthorId(), vehicle.getAuthorName(), vehicle.getAuthorAvatarUrl())
                 ))
-                .collect(Collectors.toList());
+                .toList();
 
         return new GetVehicleResponse(vehicleResponseDTOS, pageSize, pageIndex, pages.getTotalPages());
     }

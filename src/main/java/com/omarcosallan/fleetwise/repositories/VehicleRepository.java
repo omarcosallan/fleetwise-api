@@ -18,7 +18,12 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
             JOIN FETCH Organization o ON e.organization.id = o.id
             JOIN FETCH User u ON e.owner.id = u.id
             WHERE e.organization.slug = :organizationSlug
-            AND (:search IS NULL OR e.plate = :search OR e.register = :search OR LOWER(e.model) like %:search% OR lower(e.manufacturer) like %:search%)
+            AND (:search IS NULL
+                OR LOWER(e.plate) LIKE %:search%
+                OR e.register LIKE %:search%
+                OR LOWER(e.model) LIKE %:search%
+                OR LOWER(e.manufacturer) LIKE %:search%
+            )
             ORDER BY e.createdAt DESC
             """)
     Page<VehicleOrgAndAuthorProjection> findAllByOrganizationSlugAndFiltered(@Param("organizationSlug") String organizationSlug, @Param("search") String search, Pageable pageable);
