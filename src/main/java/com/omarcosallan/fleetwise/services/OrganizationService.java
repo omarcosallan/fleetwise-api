@@ -6,6 +6,7 @@ import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
 import com.omarcosallan.fleetwise.dto.organization.*;
+import com.omarcosallan.fleetwise.dto.user.UserMinDTO;
 import com.omarcosallan.fleetwise.exceptions.BadRequestException;
 import com.omarcosallan.fleetwise.exceptions.OrganizationDomainAlreadyExistsException;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
@@ -30,34 +31,27 @@ public class OrganizationService {
     @Autowired
     private MemberService memberService;
 
+    @Autowired
+    private OrganizationMapper mapper;
+
     @Transactional
     public ResponseWrapper<UUID> createOrganization(CreateOrganizationRequestDTO body) {
         User currentUser = AuthService.authenticated();
 
         if (body.domain() != null) {
-            Optional<Organization> organizationByDomain = organizationRepository.findByDomain(body.domain());
-
-            if (organizationByDomain.isPresent()) {
+            organizationRepository.findByDomain(body.domain()).ifPresent(org -> {
                 throw new OrganizationDomainAlreadyExistsException();
-            }
+            });
         }
 
-        Organization organization = new Organization();
+        Organization organization = mapper.toEntity(body, SlugUtils.createSlug(body.name()), currentUser);
 
-        organization.setName(body.name());
-        organization.setSlug(SlugUtils.createSlug(body.name()));
-        organization.setDomain(body.domain());
-        organization.setShouldAttachUsersByDomain(body.shouldAttachUsersByDomain());
-        organization.setOwner(currentUser);
-
-        Member member = new Member();
-        member.setUser(currentUser);
-        member.setRole(Role.ADMIN);
+        Member member = new Member(Role.ADMIN, currentUser);
         organization.addMember(member);
 
         organizationRepository.save(organization);
 
-        return new ResponseWrapper<UUID>("organizationId", organization.getId());
+        return new ResponseWrapper<>("organizationId", organization.getId());
     }
 
     public MembershipDTO getMembership(String slug) {
@@ -65,18 +59,26 @@ public class OrganizationService {
         return MembershipMapper.INSTANCE.toMembershipDTO(member);
     }
 
-    public Organization getEntityOrganization(String slug) {
-        return organizationRepository.findBySlug(slug);
-    }
-
     public OrganizationDTO getOrganization(String slug) {
         Organization org = organizationRepository.findBySlug(slug);
-        return OrganizationMapper.INSTANCE.toOrganizationDTO(org);
+        return mapper.toOrganizationDTO(org);
     }
 
     public List<OrganizationWithOwnerDTO> getOrganizations() {
         User user = AuthService.authenticated();
-        return organizationRepository.findOrganizationsByUserId(user.getId());
+        return organizationRepository.findOrganizationsByUserId(user.getId())
+                .stream().map(org -> new OrganizationWithOwnerDTO(
+                        org.getId(),
+                        org.getName(),
+                        org.getSlug(),
+                        org.getDomain(),
+                        org.getShouldAttachUsersByDomain(),
+                        org.getAvatarUrl(),
+                        org.getCreatedAt(),
+                        org.getRole(),
+                        new UserMinDTO(org.getOwnerId(), org.getOwnerName(), org.getOwnerEmail(), org.getOwnerAvatarUrl())
+                ))
+                .toList();
     }
 
     @Transactional
@@ -99,11 +101,6 @@ public class OrganizationService {
         organizationRepository.save(organization);
     }
 
-    public Organization findFirstByDomainAndShouldAttachUsersByDomain(String domain) {
-        return organizationRepository.findFirstByDomainAndShouldAttachUsersByDomainTrue(domain)
-                .orElse(null);
-    }
-
     @Transactional
     public void shutdownOrganization(String slug) {
         organizationRepository.deleteBySlug(slug);
@@ -121,5 +118,14 @@ public class OrganizationService {
         organization.setOwner(transferMembership.getUser());
 
         organizationRepository.save(organization);
+    }
+
+    public Organization findFirstByDomainAndShouldAttachUsersByDomain(String domain) {
+        return organizationRepository.findFirstByDomainAndShouldAttachUsersByDomainTrue(domain)
+                .orElse(null);
+    }
+
+    public Organization getEntityOrganization(String slug) {
+        return organizationRepository.findBySlug(slug);
     }
 }

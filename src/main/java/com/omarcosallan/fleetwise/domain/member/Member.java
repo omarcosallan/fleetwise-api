@@ -32,4 +32,9 @@ public class Member {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Member(Role role, User user) {
+        this.role = role;
+        this.user = user;
+    }
 }
