@@ -1,8 +1,9 @@
 package com.omarcosallan.fleetwise.controllers;
 
 import com.omarcosallan.fleetwise.dto.vehicle.CreateVehicleDTO;
+import com.omarcosallan.fleetwise.dto.vehicle.GetVehicleResponse;
 import com.omarcosallan.fleetwise.dto.vehicle.UpdateVehicleDTO;
-import com.omarcosallan.fleetwise.dto.vehicle.VehicleDTO;
+import com.omarcosallan.fleetwise.dto.vehicle.VehicleResponseDTO;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -22,8 +22,11 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @GetMapping
-    public ResponseEntity<List<VehicleDTO>> getVehicles(@PathVariable("slug") String slug) {
-        List<VehicleDTO> result = vehicleService.getVehicles(slug);
+    public ResponseEntity<GetVehicleResponse> getVehicles(@PathVariable("slug") String slug,
+                                                          @RequestParam(defaultValue = "10") int pageSize,
+                                                          @RequestParam(defaultValue = "0") int pageIndex,
+                                                          @RequestParam(required = false) String search) {
+        GetVehicleResponse result = vehicleService.getVehicles(slug, pageSize, pageIndex, search);
         return ResponseEntity.ok(result);
     }
 
@@ -35,8 +38,8 @@ public class VehicleController {
     }
 
     @GetMapping(value = "/{vehicleId}")
-    public ResponseEntity<VehicleDTO> getVehicle(@PathVariable("slug") String slug, @PathVariable("vehicleId") UUID vehicleId) {
-        VehicleDTO result = vehicleService.getVehicle(slug, vehicleId);
+    public ResponseEntity<VehicleResponseDTO> getVehicle(@PathVariable("slug") String slug, @PathVariable("vehicleId") UUID vehicleId) {
+        VehicleResponseDTO result = vehicleService.getVehicle(slug, vehicleId);
         return ResponseEntity.ok(result);
     }
 
