@@ -6,7 +6,6 @@ import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.user.CreateUserDTO;
 import com.omarcosallan.fleetwise.dto.user.UserMinDTO;
 import com.omarcosallan.fleetwise.exceptions.UserAlreadyExistsException;
-import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.mappers.UserMinMapper;
 import com.omarcosallan.fleetwise.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

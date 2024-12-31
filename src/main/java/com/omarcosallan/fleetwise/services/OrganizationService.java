@@ -9,8 +9,6 @@ import com.omarcosallan.fleetwise.dto.organization.*;
 import com.omarcosallan.fleetwise.dto.user.UserMinDTO;
 import com.omarcosallan.fleetwise.exceptions.BadRequestException;
 import com.omarcosallan.fleetwise.exceptions.OrganizationDomainAlreadyExistsException;
-import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
-import com.omarcosallan.fleetwise.mappers.MembershipMapper;
 import com.omarcosallan.fleetwise.mappers.OrganizationMapper;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
 import com.omarcosallan.fleetwise.repositories.OrganizationRepository;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -56,7 +53,11 @@ public class OrganizationService {
 
     public MembershipDTO getMembership(String slug) {
         Member member = memberService.getCurrentMember(slug);
-        return MembershipMapper.INSTANCE.toMembershipDTO(member);
+        return new MembershipDTO(member.getId(),
+                member.getRole(),
+                member.getUser().getId(),
+                member.getOrganization().getId()
+        );
     }
 
     public OrganizationDTO getOrganization(String slug) {
@@ -86,11 +87,9 @@ public class OrganizationService {
         Organization organization = organizationRepository.findBySlug(slug);
 
         if (body.domain() != null) {
-            Optional<Organization> organizationByDomain = organizationRepository.findFirstByDomainAndIdNot(body.domain(), organization.getId());
-
-            if (organizationByDomain.isPresent()) {
+            organizationRepository.findFirstByDomainAndIdNot(body.domain(), organization.getId()).ifPresent(org -> {
                 throw new OrganizationDomainAlreadyExistsException();
-            }
+            });
         }
 
         organization.setName(body.name());
