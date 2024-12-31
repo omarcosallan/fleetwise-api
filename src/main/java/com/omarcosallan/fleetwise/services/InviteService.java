@@ -11,6 +11,7 @@ import com.omarcosallan.fleetwise.exceptions.BadRequestException;
 import com.omarcosallan.fleetwise.exceptions.InviteNotFoundException;
 import com.omarcosallan.fleetwise.mappers.InviteMapper;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
+import com.omarcosallan.fleetwise.projections.InviteProjection;
 import com.omarcosallan.fleetwise.repositories.InviteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,22 @@ public class InviteService {
     @Autowired
     private OrganizationService organizationService;
 
+    @Autowired
+    private InviteMapper mapper;
+
     public List<InviteDTO> getInvites(String slug) {
         OrganizationDTO org = organizationService.getOrganization(slug);
 
-        List<Invite> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(org.id());
+        List<InviteProjection> invites = inviteRepository.findByOrganizationIdOrderByCreatedAtDesc(org.id());
 
-        return invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList());
+        return invites.stream().map(invite -> new InviteDTO(
+                        invite.getId(),
+                        invite.getRole(),
+                        invite.getEmail(), invite.getCreatedAt(),
+                        new InviteDTO.OrganizationName(invite.getOrganizationName()),
+                        new InviteDTO.Author(invite.getUserId(), invite.getUserName(), invite.getUserAvatarUrl())
+                ))
+                .toList();
     }
 
     @Transactional
@@ -65,11 +76,7 @@ public class InviteService {
             throw new BadRequestException("A user with the email " + email + " already exists in your organization.");
         }
 
-        Invite invite = new Invite();
-        invite.setOrganization(org);
-        invite.setEmail(email);
-        invite.setRole(body.role());
-        invite.setAuthor(AuthService.authenticated());
+        Invite invite = mapper.toEntity(org, body, AuthService.authenticated());
 
         inviteRepository.save(invite);
 
@@ -79,7 +86,14 @@ public class InviteService {
     public InviteDTO getInvite(UUID inviteId) {
         Invite invite = inviteRepository.findById(inviteId)
                 .orElseThrow(InviteNotFoundException::new);
-        return InviteMapper.INSTANCE.toInviteDTO(invite);
+
+        return new InviteDTO(
+                invite.getId(),
+                invite.getRole(),
+                invite.getEmail(), invite.getCreatedAt(),
+                new InviteDTO.OrganizationName(invite.getOrganization().getName()),
+                new InviteDTO.Author(invite.getAuthor().getId(), invite.getAuthor().getName(), invite.getAuthor().getAvatarUrl())
+        );
     }
 
     @Transactional
@@ -124,7 +138,16 @@ public class InviteService {
 
     public List<InviteDTO> getPendingInvites() {
         User user = AuthService.authenticated();
-        List<Invite> invites = inviteRepository.findByEmail(user.getEmail());
-        return  invites.stream().map(InviteMapper.INSTANCE::toInviteDTO).collect(Collectors.toList());
+
+        List<InviteProjection> invites = inviteRepository.findPendingInvitesByEmail(user.getEmail());
+
+        return invites.stream().map(invite -> new InviteDTO(
+                        invite.getId(),
+                        invite.getRole(),
+                        invite.getEmail(), invite.getCreatedAt(),
+                        new InviteDTO.OrganizationName(invite.getOrganizationName()),
+                        new InviteDTO.Author(invite.getUserId(), invite.getUserName(), invite.getUserAvatarUrl())
+                ))
+                .toList();
     }
 }
