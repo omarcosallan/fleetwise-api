@@ -1,18 +1,18 @@
 package com.omarcosallan.fleetwise.mappers;
 
+import com.omarcosallan.fleetwise.domain.enums.Role;
 import com.omarcosallan.fleetwise.domain.member.Member;
-import com.omarcosallan.fleetwise.dto.member.MemberDTO;
+import com.omarcosallan.fleetwise.domain.organization.Organization;
+import com.omarcosallan.fleetwise.domain.user.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface MemberMapper {
-    MemberMapper INSTANCE = Mappers.getMapper(MemberMapper.class);
 
-    @Mapping(target = "userId", source = "user.id")
-    @Mapping(target = "name", source = "user.name")
-    @Mapping(target = "email", source = "user.email")
-    @Mapping(target = "avatarUrl", source = "user.avatarUrl")
-    MemberDTO toMemberDTO(Member member);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", source = "role")
+    @Mapping(target = "organization", source = "organization")
+    @Mapping(target = "user", source = "user")
+    Member toEntity(User user, Organization organization, Role role);
 }

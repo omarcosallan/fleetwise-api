@@ -6,10 +6,10 @@ import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.member.MemberDTO;
 import com.omarcosallan.fleetwise.dto.member.UpdateMemberRequestDTO;
-import com.omarcosallan.fleetwise.dto.organization.OrganizationDTO;
 import com.omarcosallan.fleetwise.exceptions.MemberNotFoundException;
 import com.omarcosallan.fleetwise.exceptions.UnauthorizedException;
 import com.omarcosallan.fleetwise.mappers.MemberMapper;
+import com.omarcosallan.fleetwise.projections.MemberProjection;
 import com.omarcosallan.fleetwise.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class MemberService {
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private MemberMapper mapper;
 
     public Member getCurrentMember(String slug) {
         return memberRepository.findByUserIdAndOrganizationSlug(AuthService.authenticated().getId(), slug)
@@ -35,8 +37,14 @@ public class MemberService {
     }
 
     public List<MemberDTO> getMembers(String slug) {
-        List<Member> members = memberRepository.findByOrganizationSlugOrderByRoleAsc(slug);
-        return members.stream().map(MemberMapper.INSTANCE::toMemberDTO).collect(Collectors.toList());
+        List<MemberProjection> members = memberRepository.findByOrganizationSlugOrderByRoleAsc(slug);
+        return members.stream().map(member -> new MemberDTO(member.getId(),
+                member.getUserId(),
+                member.getRole(),
+                member.getUserName(),
+                member.getUserEmail(),
+                member.getUserAvatarUrl()
+        )).toList();
     }
 
     @Transactional
@@ -56,10 +64,7 @@ public class MemberService {
 
     @Transactional
     public Member create(User user, Organization org, Role role) {
-        Member member = new Member();
-        member.setUser(user);
-        member.setOrganization(org);
-        member.setRole(role);
+        Member member = mapper.toEntity(user, org, role);
         return memberRepository.save(member);
     }
 
