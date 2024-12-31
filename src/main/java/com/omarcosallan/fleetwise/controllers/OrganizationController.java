@@ -3,6 +3,7 @@ package com.omarcosallan.fleetwise.controllers;
 import com.omarcosallan.fleetwise.dto.member.MembershipDTO;
 import com.omarcosallan.fleetwise.dto.organization.*;
 import com.omarcosallan.fleetwise.mappers.ResponseWrapper;
+import com.omarcosallan.fleetwise.services.ActivityService;
 import com.omarcosallan.fleetwise.services.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,9 @@ import java.util.UUID;
 public class OrganizationController {
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private ActivityService activityService;
 
     @PostMapping
     public ResponseEntity<ResponseWrapper<UUID>> createOrganization(@RequestBody CreateOrganizationRequestDTO body) {
@@ -62,5 +66,11 @@ public class OrganizationController {
     public ResponseEntity<Void> transferOrganization(@PathVariable("slug") String slug, @RequestBody TransferOrganizationRequestDTO body) {
         organizationService.transferOrganization(slug, body);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(value = "/recent-activity")
+    public ResponseEntity<List<ActivityDTO>> getRecentActivity() {
+        List<ActivityDTO> result = activityService.getRecentActivities();
+        return ResponseEntity.ok(result);
     }
 }
