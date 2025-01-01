@@ -4,6 +4,7 @@ import com.omarcosallan.fleetwise.domain.member.Member;
 import com.omarcosallan.fleetwise.domain.organization.Organization;
 import com.omarcosallan.fleetwise.domain.user.User;
 import com.omarcosallan.fleetwise.dto.user.CreateUserDTO;
+import com.omarcosallan.fleetwise.dto.user.UpdateUserDTO;
 import com.omarcosallan.fleetwise.dto.user.UserMinDTO;
 import com.omarcosallan.fleetwise.exceptions.UserAlreadyExistsException;
 import com.omarcosallan.fleetwise.repositories.UserRepository;
@@ -52,5 +53,19 @@ public class UserService {
         userRepository.save(user);
 
         return new UserMinDTO(user.getId(), user.getName(), user.getEmail(), user.getAvatarUrl());
+    }
+
+    public void update(UpdateUserDTO body) {
+        User user = AuthService.authenticated();
+
+        if (body.email() != null && !body.email().equals(user.getEmail())) {
+            user.setEmail(body.email());
+        }
+
+        if (body.name() != null && !body.name().equals(user.getName())) {
+            user.setName(body.name());
+        }
+
+        userRepository.save(user);
     }
 }
