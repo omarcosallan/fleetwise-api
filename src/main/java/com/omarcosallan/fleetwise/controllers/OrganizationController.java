@@ -24,9 +24,9 @@ public class OrganizationController {
     private ActivityService activityService;
 
     @PostMapping
-    public ResponseEntity<ResponseWrapper<UUID>> createOrganization(@RequestBody CreateOrganizationRequestDTO body) {
-        ResponseWrapper<UUID> organizationId = organizationService.createOrganization(body);
-        return ResponseEntity.status(HttpStatus.CREATED).body(organizationId);
+    public ResponseEntity<ResponseWrapper<String>> createOrganization(@RequestBody CreateOrganizationRequestDTO body) {
+        ResponseWrapper<String> organizationSlug = organizationService.createOrganization(body);
+        return ResponseEntity.status(HttpStatus.CREATED).body(organizationSlug);
     }
 
     @GetMapping(value = "/{slug}/membership")

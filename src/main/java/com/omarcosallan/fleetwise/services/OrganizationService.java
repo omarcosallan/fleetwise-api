@@ -32,7 +32,7 @@ public class OrganizationService {
     private OrganizationMapper mapper;
 
     @Transactional
-    public ResponseWrapper<UUID> createOrganization(CreateOrganizationRequestDTO body) {
+    public ResponseWrapper<String> createOrganization(CreateOrganizationRequestDTO body) {
         User currentUser = AuthService.authenticated();
 
         if (body.domain() != null) {
@@ -48,7 +48,7 @@ public class OrganizationService {
 
         organizationRepository.save(organization);
 
-        return new ResponseWrapper<>("organizationId", organization.getId());
+        return new ResponseWrapper<>("organizationSlug", organization.getSlug());
     }
 
     public MembershipDTO getMembership(String slug) {
