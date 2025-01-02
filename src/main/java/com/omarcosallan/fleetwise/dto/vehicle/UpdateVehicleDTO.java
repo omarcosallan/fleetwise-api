@@ -4,5 +4,7 @@ public record UpdateVehicleDTO(String model,
                                String manufacturer,
                                Integer manufacturingYear,
                                Boolean active,
-                               Boolean rented) {
+                               Boolean rented,
+                               String plate,
+                               String register) {
 }

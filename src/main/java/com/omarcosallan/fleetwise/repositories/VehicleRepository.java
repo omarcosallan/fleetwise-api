@@ -28,7 +28,7 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
             """)
     Page<VehicleOrgAndAuthorProjection> findAllByOrganizationSlugAndFiltered(@Param("organizationSlug") String organizationSlug, @Param("search") String search, Pageable pageable);
 
-    Optional<Vehicle> findByPlateOrRegister(String plate, String register);
+    Optional<Vehicle> findFirstByPlateOrRegister(String plate, String register);
 
     @Query("""
             SELECT e.id AS id, e.model AS model, e.manufacturer AS manufacturer, e.manufacturingYear AS manufacturingYear, e.plate AS plate, e.register AS register, e.active AS active, e.rented AS rented, e.createdAt AS createdAt, o.id AS organizationId, u.id AS authorId, u.name AS authorName, u.avatarUrl AS authorAvatarUrl
@@ -39,5 +39,5 @@ public interface VehicleRepository extends JpaRepository<Vehicle, UUID> {
             """)
     Optional<VehicleOrgAndAuthorProjection> findByOrganizationSlugAndId(@Param("organizationSlug") String organizationSlug, @Param("vehicleId") UUID vehicleId);
 
-    Optional<Vehicle> findByOrganizationSlugAndPlate(String slug, String plate);
+    Optional<Vehicle> findFirstByOrganizationSlugAndPlate(String slug, String plate);
 }

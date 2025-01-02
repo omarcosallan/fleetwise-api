@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class VehicleService {
@@ -61,7 +60,7 @@ public class VehicleService {
     public UUID createVehicle(String slug, CreateVehicleDTO body) {
         Member member = memberService.getCurrentMember(slug);
 
-        vehicleRepository.findByPlateOrRegister(body.plate(), body.register()).ifPresent(vehicle -> {
+        vehicleRepository.findFirstByPlateOrRegister(body.plate(), body.register()).ifPresent(vehicle -> {
             throw new VehicleAlreadyExistsException();
         });
 
@@ -91,7 +90,7 @@ public class VehicleService {
     }
 
     public void updateVehicle(String slug, String plate, UpdateVehicleDTO body) {
-        Vehicle vehicle = vehicleRepository.findByOrganizationSlugAndPlate(slug, plate).orElseThrow(VehicleNotFoundException::new);
+        Vehicle vehicle = vehicleRepository.findFirstByOrganizationSlugAndPlate(slug, plate).orElseThrow(VehicleNotFoundException::new);
 
         vehicle.setModel(body.model());
         vehicle.setManufacturer(body.manufacturer());
